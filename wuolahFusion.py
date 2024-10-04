@@ -44,12 +44,12 @@ def check_args(args):
     # Si se especifica un archivo de log, verificamos si existe el directorio para guardarlo
     if args.log:
         if args.verbose:
-            print(f"{Fore.CYAN}[V]{Fore.RESET} Verificando si el archivo de log existe...")
+            print(f"{Fore.MAGENTA}[V]{Fore.RESET} Verificando si el archivo de log existe...")
 
         # Si no existe el directorio "logs", lo creamos
         if not os.path.exists("./logs"):
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Creando el directorio de logs...")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Creando el directorio de logs...")
             os.makedirs("./logs")
             os.chmod("./logs", 0o777)  # Permisos de lectura, escritura y ejecución para todos
 
@@ -60,7 +60,7 @@ def check_args(args):
 
     # Verificamos si el archivo de salida existe
     if args.verbose:
-        print(f"{Fore.CYAN}[V]{Fore.RESET} Verificando si el archivo de salida existe...")
+        print(f"{Fore.MAGENTA}[V]{Fore.RESET} Verificando si el archivo de salida existe...")
 
     # Si no se especifica archivo de salida, se genera uno por defecto
     if args.output is None:
@@ -76,7 +76,7 @@ def check_args(args):
     # Verificamos que todos los archivos de entrada existan
     for file in args.input:
         if args.verbose:
-            print(f"{Fore.CYAN}[V]{Fore.RESET} Verificando si el archivo {file} existe...")
+            print(f"{Fore.MAGENTA}[V]{Fore.RESET} Verificando si el archivo {file} existe...")
         if not os.path.exists(file):
             print(f"\nEl archivo {Fore.YELLOW}{file}{Fore.RESET} no existe")
             print(Fore.RED + "\tSaliendo..." + Fore.RESET)
@@ -98,35 +98,34 @@ def main():
         # Manejo de logging si el usuario lo especifica
         if args.log:
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Abriendo el archivo de log...")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Abriendo el archivo de log...")
             log_file = open(f"./logs/log_{os.getpid()}.txt", "a+")
 
         if args.verbose:
-            print(f"{Fore.CYAN}[V]{Fore.RESET} Abriendo el archivo de salida...")
+            print(f"{Fore.MAGENTA}[V]{Fore.RESET} Abriendo el archivo de salida...")
 
         # Abrimos el archivo de salida en modo escritura binaria
         with open(args.output, 'wb') as f:
             f.write(b'')  # Inicializamos el archivo vacío
-            f.close()
 
         output_file = open(args.output, "wb")
-        writer = PdfWriter(output_file)
+        writer = PdfWriter()
 
         if args.verbose:
-            print(f"{Fore.CYAN}[V]{Fore.RESET} Archivo de salida abierto")
+            print(f"{Fore.MAGENTA}[V]{Fore.RESET} Archivo de salida abierto")
         if args.log:
             log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Archivo de salida abierto")
 
         # Procesamos cada archivo de entrada
         for file in args.input:
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Abriendo el archivo de entrada \"{file}\"...")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Abriendo el archivo de entrada \"{file}\"...")
             input_file = open(file, "rb")
             reader = PdfReader(input_file)
 
             # Mostramos cuántas páginas tiene el archivo
             if args.verbose:
-                print(f"{Fore.GREEN}[i]{Fore.RESET} Número de páginas en \"{file}\": {len(reader.pages)}")
+                print(f"{Fore.YELLOW}[i]{Fore.RESET} Número de páginas en \"{file}\": {len(reader.pages)}")
             
             # Añadimos las páginas al archivo de salida
             for page in reader.pages:
@@ -135,13 +134,13 @@ def main():
             input_file.close()
 
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Páginas de \"{file}\" añadidas al archivo de salida")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Páginas de \"{file}\" añadidas al archivo de salida")
             if args.log:
                 log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Páginas de \"{file}\" añadidas al archivo de salida")
             
         # Cerramos el archivo de salida
         if args.verbose:
-            print(f"{Fore.CYAN}[V]{Fore.RESET} Cerrando el archivo de salida...")
+            print(f"{Fore.MAGENTA}[V]{Fore.RESET} Cerrando el archivo de salida...")
         if args.log:
             log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Cerrando el archivo de salida")
 
@@ -152,10 +151,13 @@ def main():
         if args.remove_ads:
             from gulagcleaner.gulagcleaner_extract import deembed
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Eliminando los anuncios del archivo de salida...")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Eliminando los anuncios del archivo de salida...")
             if args.log:
                 log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Eliminando los anuncios del archivo de salida...")
+            
+            # Llamamos a la función de eliminación de anuncios
             resp = deembed(args.output, True)
+            print(resp)  # Imprimir la respuesta para depuración
             if not resp["Success"]:
                 print(f"{Fore.RED}Error:{Fore.RESET} {resp['Error']}")
                 if args.log:
@@ -166,13 +168,13 @@ def main():
         # Finalizamos el archivo de log si es necesario
         if args.log:
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Cerrando el archivo de log...")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Cerrando el archivo de log...")
             log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Operación completada con éxito")
             log_file.close()
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Archivo de log cerrado")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Archivo de log cerrado")
 
-        print(f"\n{Fore.GREEN}Operación completada con éxito{Fore.RESET}")
+        print(f"\n{Fore.YELLOW}Operación completada con éxito{Fore.RESET}")
 
     # Manejamos la interrupción del usuario
     except KeyboardInterrupt:
@@ -180,7 +182,7 @@ def main():
         print(Fore.RED + "\tSaliendo..." + Fore.RESET)
         if args.log:
             if args.verbose:
-                print(f"{Fore.CYAN}[V]{Fore.RESET} Cerrando el archivo de log...")
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Cerrando el archivo de log...")
             log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Operación cancelada por el usuario")
             log_file.close()
         exit(1)
