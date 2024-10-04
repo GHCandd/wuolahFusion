@@ -186,6 +186,18 @@ def main():
             log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Operación cancelada por el usuario")
             log_file.close()
         exit(1)
+    
+    except Exception as e:
+        print("\nUn error ha ocurrido")
+        print(Fore.RED + "\tSaliendo..." + Fore.RESET)
+        if args.log:
+            if args.verbose:
+                print(f"{Fore.MAGENTA}[V]{Fore.RESET} Cerrando el archivo log...")
+            log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Un error ha ocurrido")
+            log_file.write(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S')}] Cerrando el archivo log...")
+            log_file.close()
+        raise e
+
 
 if __name__ == "__main__":
     main()
